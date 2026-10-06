@@ -1,3 +1,9 @@
+# uke: nt36532_touch.ko calls mi_dsi_panel_lockdown_info_read(), exported by
+# display-drivers/msm. Also covers the xiaomi_touch composite built from this
+# Kbuild. xiaomi/Kbuild has a line for this but it uses the $(OUT)/obj/vendor/...
+# form, which does not exist in this build (ext modules compile in-tree).
+KBUILD_EXTRA_SYMBOLS += $(src)/../display-drivers/msm/Module.symvers
+
 
 KDIR := $(TOP)/kernel_platform/common
 
@@ -145,6 +151,20 @@ ifeq ($(CONFIG_TOUCHSCREEN_NT36XXX_I2C), y)
 	obj-$(CONFIG_MSM_TOUCH) += nt36xxx-i2c.o
 endif
 
+# uke/yupei NT36532 host-download SPI touchscreen driver
+ifeq ($(CONFIG_TOUCHSCREEN_NT36xxx_HOSTDL_SPI), y)
+	LINUX_INC += -I$(TOUCH_ROOT)/nt36532
+	LINUX_INC += -I$(TOUCH_ROOT)/xiaomi
+
+	nt36532_touch-y := \
+		 ./nt36532/nt36xxx.o \
+		 ./nt36532/nt36xxx_fw_update.o \
+		 ./nt36532/nt36xxx_ext_proc.o \
+		 ./nt36532/nt36xxx_mp_ctrlram.o
+
+	obj-$(CONFIG_MSM_TOUCH) += nt36532_touch.o
+endif
+
 ifeq ($(CONFIG_TOUCHSCREEN_GOODIX_BRL), y)
 	LINUX_INC += -include $(TOUCH_ROOT)/goodix_berlin_driver/goodix_ts_core.h
 
@@ -215,9 +235,17 @@ ifeq ($(CONFIG_TOUCHSCREEN_FOCALTECH_3683G), y)
 endif
 
 ifeq ($(CONFIG_TOUCHSCREEN_XIAOMI_TOUCHFEATURE), y)
+	LINUX_INC += -I$(TOUCH_ROOT)/xiaomi
 
 	xiaomi_touch-y := \
-		 ./xiaomi/xiaomi_touch.o \
+		 ./xiaomi/xiaomi_touch_knock_data.o \
+		 ./xiaomi/xiaomi_touch_core.o \
+		 ./xiaomi/xiaomi_touch_proc.o \
+		 ./xiaomi/xiaomi_touch_operations.o \
+		 ./xiaomi/xiaomi_touch_sys.o \
+		 ./xiaomi/xiaomi_touch_mode.o \
+		 ./xiaomi/xiaomi_touch_evdev.o \
+		 ./xiaomi/xiaomi_touch_device.o
 
 	obj-$(CONFIG_MSM_TOUCH) += xiaomi_touch.o
 endif
