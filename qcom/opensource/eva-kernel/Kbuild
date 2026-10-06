@@ -1,3 +1,17 @@
+# uke: this module needs symbols exported by the mm-*/mmrm/synx/securemsm ext
+# modules, which are all listed before it in TARGET_KERNEL_EXT_MODULES. The
+# upstream tree wires none of them (no KBUILD_EXTRA_SYMBOLS here at all), so
+# modpost reports the symbols undefined. Paths relative to this Kbuild.
+KBUILD_EXTRA_SYMBOLS += $(src)/../mmrm-driver/Module.symvers
+KBUILD_EXTRA_SYMBOLS += $(src)/../mm-drivers/hw_fence/Module.symvers
+KBUILD_EXTRA_SYMBOLS += $(src)/../mm-drivers/msm_ext_display/Module.symvers
+KBUILD_EXTRA_SYMBOLS += $(src)/../mm-drivers/sync_fence/Module.symvers
+KBUILD_EXTRA_SYMBOLS += $(src)/../synx-kernel/Module.symvers
+KBUILD_EXTRA_SYMBOLS += $(src)/../securemsm-kernel/Module.symvers
+# uke: msm-eva.ko calls fastrpc_driver_invoke/register/unregister, exported
+# by dsp-kernel/dsp/adsprpc.c. dsp-kernel is moved ahead of eva-kernel in
+# BoardConfig for this to exist at modpost time.
+KBUILD_EXTRA_SYMBOLS += $(src)/../dsp-kernel/Module.symvers
 # SPDX-License-Identifier: GPL-2.0-only
 
 CONFIG_BUILD_VENDORSI := true

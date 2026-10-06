@@ -1,3 +1,7 @@
+# uke: symbols from the cluster modules listed before this one in
+# TARGET_KERNEL_EXT_MODULES. Upstream wires none of these, so modpost
+# reports them undefined. Relative paths computed from $(src).
+KBUILD_EXTRA_SYMBOLS += $(src)/../../../../datarmnet-ext/mem/Module.symvers
 # SPDX-License-Identifier: GPL-2.0-only
 DATAIPADRVTOP = $(srctree)/techpack/dataipa/drivers/platform/msm
 

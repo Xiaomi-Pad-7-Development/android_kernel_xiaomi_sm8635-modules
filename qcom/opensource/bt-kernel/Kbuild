@@ -1,3 +1,8 @@
+# uke: btpower.ko calls get_client_env_object(), defined by
+# securemsm-kernel's smcinvoke code. It is not a kernel export, and
+# securemsm-kernel (entry 6) is built long before bt-kernel (entry 30),
+# so its Module.symvers exists by now. Upstream wires nothing here.
+KBUILD_EXTRA_SYMBOLS += $(src)/../securemsm-kernel/Module.symvers
 ifeq ($(CONFIG_MSM_BT_POWER),m)
 KBUILD_CPPFLAGS += -DCONFIG_MSM_BT_POWER
 endif

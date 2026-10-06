@@ -34,8 +34,8 @@ KBUILD_EXTRA := \
     DEVNAME=$(LOCAL_DEV_NAME)
 
 KBUILD_OPTIONS += \
-    KBUILD_EXTRA_SYMBOLS=$(M)/../../../dataipa/drivers/platform/msm/Module.symvers \
-    KBUILD_EXTRA_SYMBOLS+=$(M)/../../platform/Module.symvers
+    KBUILD_EXTRA_SYMBOLS=$(M)/../../dataipa/drivers/platform/msm/Module.symvers \
+    KBUILD_EXTRA_SYMBOLS+=$(M)/../platform/Module.symvers
 
 #By default build for CLD
 WLAN_SELECT := CONFIG_QCA_CLD_WLAN=m

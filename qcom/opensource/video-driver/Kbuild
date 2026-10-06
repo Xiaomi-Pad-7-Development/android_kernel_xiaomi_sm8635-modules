@@ -1,1 +1,11 @@
+# uke: this module needs symbols exported by the mm-*/mmrm/synx/securemsm ext
+# modules, which are all listed before it in TARGET_KERNEL_EXT_MODULES. The
+# upstream tree wires none of them (no KBUILD_EXTRA_SYMBOLS here at all), so
+# modpost reports the symbols undefined. Paths relative to this Kbuild.
+KBUILD_EXTRA_SYMBOLS += $(src)/../mmrm-driver/Module.symvers
+KBUILD_EXTRA_SYMBOLS += $(src)/../mm-drivers/hw_fence/Module.symvers
+KBUILD_EXTRA_SYMBOLS += $(src)/../mm-drivers/msm_ext_display/Module.symvers
+KBUILD_EXTRA_SYMBOLS += $(src)/../mm-drivers/sync_fence/Module.symvers
+KBUILD_EXTRA_SYMBOLS += $(src)/../synx-kernel/Module.symvers
+KBUILD_EXTRA_SYMBOLS += $(src)/../securemsm-kernel/Module.symvers
 obj-m := msm_video/ video/

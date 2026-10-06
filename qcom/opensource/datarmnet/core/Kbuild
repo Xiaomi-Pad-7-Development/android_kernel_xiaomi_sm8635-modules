@@ -1,3 +1,8 @@
+# uke: symbols from the cluster modules listed before this one in
+# TARGET_KERNEL_EXT_MODULES. Upstream wires none of these, so modpost
+# reports them undefined. Relative paths computed from $(src).
+KBUILD_EXTRA_SYMBOLS += $(src)/../../datarmnet-ext/mem/Module.symvers
+KBUILD_EXTRA_SYMBOLS += $(src)/../../dataipa/drivers/platform/msm/Module.symvers
 ifneq (, $(filter y, $(CONFIG_ARCH_PINEAPPLE) $(CONFIG_ARCH_BLAIR) $(CONFIG_ARCH_MONACO) $(CONFIG_ARCH_PITTI)))
 ccflags-y	+= -DRMNET_LA_PLATFORM
 endif

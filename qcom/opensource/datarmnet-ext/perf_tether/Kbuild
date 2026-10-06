@@ -1,3 +1,13 @@
+# uke: symbols from the cluster modules listed before this one in
+# TARGET_KERNEL_EXT_MODULES. Upstream wires none of these, so modpost
+# reports them undefined. Relative paths computed from $(src).
+KBUILD_EXTRA_SYMBOLS += $(src)/../mem/Module.symvers
+KBUILD_EXTRA_SYMBOLS += $(src)/../../dataipa/drivers/platform/msm/Module.symvers
+KBUILD_EXTRA_SYMBOLS += $(src)/../../datarmnet/core/Module.symvers
+KBUILD_EXTRA_SYMBOLS += $(src)/../sch/Module.symvers
+KBUILD_EXTRA_SYMBOLS += $(src)/../wlan/Module.symvers
+KBUILD_EXTRA_SYMBOLS += $(src)/../shs/Module.symvers
+KBUILD_EXTRA_SYMBOLS += $(src)/../perf/Module.symvers
 obj-m += rmnet_perf_tether.o
 #Need core headers
 ccflags-y := -I$(RMNET_CORE_INC_DIR) \

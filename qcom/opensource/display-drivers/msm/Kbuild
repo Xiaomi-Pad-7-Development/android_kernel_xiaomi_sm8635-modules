@@ -104,8 +104,28 @@ ifneq (, $(filter $(word 2,$(subst _, ,$(TARGET_PRODUCT))), chenfeng))
 	CDEFINES += -DCONFIG_TARGET_PRODUCT_CHENFENG
 endif
 
-KBUILD_EXTRA_SYMBOLS +=$(OUT)/obj/sm8635-modules/qcom/opensource/display-drivers/hdcp/Module.symvers
-KBUILD_EXTRA_SYMBOLS +=$(OUT)/obj/sm8635-modules/qcom/opensource/display-drivers/msm/Module.symvers
+# KBUILD_EXTRA_SYMBOLS +=$(OUT)/obj/sm8635-modules/qcom/opensource/display-drivers/hdcp/Module.symvers
+# KBUILD_EXTRA_SYMBOLS +=$(OUT)/obj/sm8635-modules/qcom/opensource/display-drivers/msm/Module.symvers
+# uke: msm_drm.ko needs 10 HDCP symbols (hdcp1_init/start/stop/set_enc/
+# ops_notify/feature_supported/deinit, hdcp2_open_stream/close_stream/
+# feature_supported) exported by securemsm-kernel's hdcp_qseecom_dlkm.
+# The two lines above are commented out upstream and their $(OUT)/obj/...
+# prefix does not exist in this build, so modpost never sees them.
+# securemsm-kernel is built earlier in TARGET_KERNEL_EXT_MODULES; use a
+# path relative to this Kbuild so it holds wherever the tree lives.
+KBUILD_EXTRA_SYMBOLS += $(src)/../../securemsm-kernel/Module.symvers
+# uke: msm_drm.ko also needs symbols from the mm-* family and mmrm, all of
+# which precede display-drivers/msm in TARGET_KERNEL_EXT_MODULES:
+#   ms_ext_disp_*   <- mm-drivers/msm_ext_display
+#   spec_sync_*     <- mm-drivers/sync_fence
+#   msm_hw_fence_*  <- mm-drivers/hw_fence
+#   mmrm_client_*   <- mmrm-driver
+# plus the synx-kernel exports.
+KBUILD_EXTRA_SYMBOLS += $(src)/../../mmrm-driver/Module.symvers
+KBUILD_EXTRA_SYMBOLS += $(src)/../../mm-drivers/hw_fence/Module.symvers
+KBUILD_EXTRA_SYMBOLS += $(src)/../../mm-drivers/msm_ext_display/Module.symvers
+KBUILD_EXTRA_SYMBOLS += $(src)/../../mm-drivers/sync_fence/Module.symvers
+KBUILD_EXTRA_SYMBOLS += $(src)/../../synx-kernel/Module.symvers
 
 ifeq ($(call cc-option-yn, -Wheader-guard),y)
 EXTRA_CFLAGS += -Wheader-guard
