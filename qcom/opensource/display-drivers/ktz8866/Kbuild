@@ -1,0 +1,16 @@
+# KTZ8866 LED backlight driver, from the uke-oss-kernel OSS drop at
+# drivers/video/backlight/ktz8866.c (commit 3bfb7ca302bf).
+#
+# uke's panel backlight is this external I2C IC, not PMIC WLED. mi_disp
+# deliberately skips the MIPI DCS 0x51 brightness command for LCD panels
+# (o81/o82) and instead drives a BACKLIGHT_RAW device:
+#   dsi_panel.c:609  backlight_device_get_by_type(BACKLIGHT_RAW)
+#   dsi_panel.c:920  backlight_device_set_brightness(bl->raw_bd, bl_lvl)
+# Without this driver nothing registers a BACKLIGHT_RAW device, so that lookup
+# returns nothing and panel0-backlight is a hollow sysfs node.
+#
+# 6.1 compatibility: nothing to port. probe is already
+# `static int ktz8866_probe(struct i2c_client *client)`, there is no strlcpy,
+# and props.type = BACKLIGHT_RAW is already set.
+obj-m += ktz8866.o
+ccflags-y += -I$(src)
