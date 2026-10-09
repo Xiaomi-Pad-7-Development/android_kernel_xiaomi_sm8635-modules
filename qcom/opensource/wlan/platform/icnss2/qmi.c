@@ -46,6 +46,19 @@
 #define BIN_BDF_FILE_NAME_PREFIX	"bdwlan."
 #define REGDB_FILE_NAME			"regdb.bin"
 
+extern uint32_t get_hw_version_platform(void);
+extern uint32_t get_hw_country_version(void);
+
+#define HARDWARE_PROJECT_N9		8
+#define HARDWARE_PROJECT_N16T		9
+#define HARDWARE_PROJECT_O82		11
+#define HARDWARE_PROJECT_O16U		12
+#define HARDWARE_PROJECT_P16U		13
+
+#define COUNTRY_CN			0
+#define COUNTRY_GLOBAL			1
+#define COUNTRY_INDIA			2
+
 #define HW_V1_NUMBER			"v1"
 #ifdef CONFIG_ICNSS2_DEBUG
 #define QDSS_FILE_BUILD_STR		"debug_"
@@ -1065,9 +1078,56 @@ static int icnss_get_bdf_file_name(struct icnss_priv *priv,
 
 	switch (bdf_type) {
 	case ICNSS_BDF_ELF:
-		if (priv->board_id == 0xFF)
-			snprintf(filename_tmp, filename_len, ELF_BDF_FILE_NAME);
-		else if (priv->board_id < 0xFF)
+		if (priv->board_id == 0xFF) {
+			uint32_t project = get_hw_version_platform();
+			uint32_t country = get_hw_country_version();
+
+			switch (project) {
+			case HARDWARE_PROJECT_N9:
+				if (country == COUNTRY_INDIA)
+					snprintf(filename_tmp, filename_len, "bd_n9in.elf");
+				else
+					snprintf(filename_tmp, filename_len, "bd_n9.elf");
+				break;
+			case HARDWARE_PROJECT_N16T:
+				if (country == COUNTRY_GLOBAL)
+					snprintf(filename_tmp, filename_len, "bd_n16tgl.elf");
+				else if (country == COUNTRY_INDIA)
+					snprintf(filename_tmp, filename_len, "bd_n16tin.elf");
+				else
+					snprintf(filename_tmp, filename_len, "bd_n16t.elf");
+				break;
+			case HARDWARE_PROJECT_O82:
+				if (country == COUNTRY_GLOBAL)
+					snprintf(filename_tmp, filename_len, "bd_o82gl.elf");
+				else if (country == COUNTRY_INDIA)
+					snprintf(filename_tmp, filename_len, "bd_o82in.elf");
+				else
+					snprintf(filename_tmp, filename_len, "bd_o82.elf");
+				break;
+			case HARDWARE_PROJECT_O16U:
+				if (country == COUNTRY_GLOBAL)
+					snprintf(filename_tmp, filename_len, "bd_o16ugl.elf");
+				else if (country == COUNTRY_INDIA)
+					snprintf(filename_tmp, filename_len, "bd_o16uin.elf");
+				else
+					snprintf(filename_tmp, filename_len, "bd_o16u.elf");
+				break;
+			case HARDWARE_PROJECT_P16U:
+				if (country == COUNTRY_GLOBAL)
+					snprintf(filename_tmp, filename_len, "bd_p16ugl.elf");
+				else if (country == COUNTRY_INDIA)
+					snprintf(filename_tmp, filename_len, "bd_p16uin.elf");
+				else
+					snprintf(filename_tmp, filename_len, "bd_p16u.elf");
+				break;
+			default:
+				snprintf(filename_tmp, filename_len, ELF_BDF_FILE_NAME);
+				break;
+			}
+			icnss_pr_info("Selected BDF file: %s for project %u country %u\n",
+				      filename_tmp, project, country);
+		} else if (priv->board_id < 0xFF)
 			snprintf(filename_tmp, filename_len,
 				 ELF_BDF_FILE_NAME_PREFIX "%02x",
 				 priv->board_id);
@@ -1099,7 +1159,16 @@ static int icnss_get_bdf_file_name(struct icnss_priv *priv,
 		}
 		break;
 	case ICNSS_BDF_REGDB:
-		snprintf(filename_tmp, filename_len, REGDB_FILE_NAME);
+		if (get_hw_version_platform() == HARDWARE_PROJECT_O82 ||
+		    get_hw_version_platform() == HARDWARE_PROJECT_N9 ||
+		    get_hw_version_platform() == HARDWARE_PROJECT_N16T ||
+		    get_hw_version_platform() == HARDWARE_PROJECT_O16U ||
+		    get_hw_version_platform() == HARDWARE_PROJECT_P16U) {
+			snprintf(filename_tmp, filename_len, "regdb_xiaomi.bin");
+		} else {
+			snprintf(filename_tmp, filename_len, REGDB_FILE_NAME);
+		}
+		icnss_pr_info("Selected REGDB file: %s\n", filename_tmp);
 		break;
 	default:
 		icnss_pr_err("Invalid BDF type: %d\n",
