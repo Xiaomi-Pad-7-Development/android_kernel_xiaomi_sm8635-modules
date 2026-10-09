@@ -8,4 +8,4 @@ KBUILD_EXTRA_SYMBOLS += $(src)/../mm-drivers/msm_ext_display/Module.symvers
 KBUILD_EXTRA_SYMBOLS += $(src)/../mm-drivers/sync_fence/Module.symvers
 KBUILD_EXTRA_SYMBOLS += $(src)/../synx-kernel/Module.symvers
 KBUILD_EXTRA_SYMBOLS += $(src)/../securemsm-kernel/Module.symvers
-obj-m := msm_video/ video/
+obj-m := msm_video/
