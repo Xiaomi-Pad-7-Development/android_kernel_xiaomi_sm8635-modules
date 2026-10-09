@@ -5646,23 +5646,32 @@ static QDF_STATUS wma_update_supported_bands(
 			WMI_PHY_CAPABILITY *new_supported_bands)
 {
 	QDF_STATUS status = QDF_STATUS_SUCCESS;
+	WMI_PHY_CAPABILITY bands = 0;
 
 	if (!new_supported_bands) {
 		wma_err("NULL new supported band variable");
 		return QDF_STATUS_E_FAILURE;
 	}
-	switch (supported_bands) {
-	case WLAN_2G_CAPABILITY:
-		*new_supported_bands |= WMI_11G_CAPABILITY;
-		break;
-	case WLAN_5G_CAPABILITY:
-		*new_supported_bands |= WMI_11A_CAPABILITY;
-		break;
-	default:
-		wma_err("wrong supported band");
-		status = QDF_STATUS_E_FAILURE;
-		break;
+
+	/*
+	 * WLAN_BAND_CAPABILITY values are bits (2G = 0x1, 5G = 0x2), so the
+	 * firmware may report both at once (0x3). Comparing for exact equality
+	 * rejected every combination, and the caller treats one failure as
+	 * fatal for the whole phy-capability update - leaving 5GHz out of the
+	 * regulatory band mask. Test the bits instead.
+	 */
+	if (supported_bands & WLAN_2G_CAPABILITY)
+		bands |= WMI_11G_CAPABILITY;
+	if (supported_bands & WLAN_5G_CAPABILITY)
+		bands |= WMI_11A_CAPABILITY;
+
+	if (!bands) {
+		wma_err("wrong supported band %d", supported_bands);
+		return QDF_STATUS_E_FAILURE;
 	}
+
+	*new_supported_bands |= bands;
+
 	return status;
 }
 
