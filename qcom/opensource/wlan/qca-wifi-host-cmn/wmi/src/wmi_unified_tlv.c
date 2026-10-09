@@ -1347,6 +1347,16 @@ static QDF_STATUS send_vdev_start_cmd_tlv(wmi_unified_t wmi_handle,
 
 	/* Fill channel info */
 	copy_channel_info(cmd, chan, req);
+	/*
+	 * band_center_freq2 is documented in wmi_channel as valid only for
+	 * VHT 80+80. A 5GHz vdev start here carried center_freq2=5250 (a
+	 * second segment on ch52) on a plain 80MHz channel-36 connection,
+	 * so the firmware brought the vdev up on a width the AP does not
+	 * use and every TX failed:
+	 *   PE: Auth TX: fail (3) -> assoc timeout -> fall back to 2.4GHz
+	 * Every other width requires seg1 == 0, so clear it.
+	 */
+	chan->band_center_freq2 = 0;
 	cmd->beacon_interval = req->beacon_interval;
 	cmd->dtim_period = req->dtim_period;
 
