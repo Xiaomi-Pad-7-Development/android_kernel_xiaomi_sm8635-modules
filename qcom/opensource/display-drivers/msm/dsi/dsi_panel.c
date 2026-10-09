@@ -924,6 +924,13 @@ int dsi_panel_set_backlight(struct dsi_panel *panel, u32 bl_lvl)
 		rc = dsi_panel_update_backlight(panel, bl_lvl);
 		break;
 	case DSI_BACKLIGHT_EXTERNAL:
+		/*
+		 * uke: o81/o82 are LCD panels lit by an external KTZ8866 LED
+		 * driver. Their brightness is not carried over DCS, so route
+		 * it to that driver - which applies the panel's normal/HBM
+		 * region mapping and perceptual remap table. Without this the
+		 * value was silently discarded (this case used to just break).
+		 */
 		if (mi_get_panel_id(panel->mi_cfg.mi_panel_id) == O82_PANEL_PB ||
 		    mi_get_panel_id(panel->mi_cfg.mi_panel_id) == O81_PANEL_PB ||
 		    mi_get_panel_id(panel->mi_cfg.mi_panel_id) == O82_PANEL_PA ||
