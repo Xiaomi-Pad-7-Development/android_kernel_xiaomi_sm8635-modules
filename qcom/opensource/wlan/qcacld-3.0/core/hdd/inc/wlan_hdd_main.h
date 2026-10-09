@@ -1488,6 +1488,9 @@ struct hdd_adapter {
 	struct wlan_hdd_link_info *deflink;
 	struct wlan_hdd_link_info link_info[WLAN_MAX_ML_BSS_LINKS];
 	struct wlan_hdd_tx_power tx_power;
+#ifdef CFG_SUPPORT_SCAN_EXT_FLAG
+	uint8_t scan_ext_flag;
+#endif
 #ifdef WLAN_FEATURE_TX_LATENCY_STATS
 	struct cdp_tx_latency_config tx_latency_cfg;
 #endif

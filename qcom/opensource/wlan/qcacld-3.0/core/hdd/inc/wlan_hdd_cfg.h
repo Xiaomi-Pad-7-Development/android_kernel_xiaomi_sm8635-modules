@@ -48,6 +48,13 @@ struct hdd_context;
 #define FW_MODULE_LOG_LEVEL_STRING_LENGTH  (512)
 #define TX_SCHED_WRR_PARAMS_NUM            (5)
 
+/*
+ * Xiaomi: enable the latency-mode-aware active-scan workaround.
+ * Without this, an adapter in LOW/ULTRALOW latency mode scans only
+ * the band it is already on. See wlan_hdd_scan.c.
+ */
+#define CFG_SUPPORT_SCAN_EXT_FLAG 1
+
 /* Defines for all of the things we read from the configuration (registry). */
 
 #ifdef CONFIG_DP_TRACE
