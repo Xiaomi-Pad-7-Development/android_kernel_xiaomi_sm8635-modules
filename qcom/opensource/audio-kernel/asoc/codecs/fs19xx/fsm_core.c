@@ -1498,6 +1498,13 @@ void fsm_speaker_onn(void) {
   }
   fsm_list_func(fsm_dev, fsm_stub_switch_preset);
   fsm_list_func(fsm_dev, fsm_stub_start_up);
+  /*
+   * Program each amp's I2S channel (chs12: 1 = left, 2 = right). This is
+   * otherwise only reachable through the FSM_Rotation kcontrol, which the
+   * AOSP/Lineage PAL never writes, so all four amps keep their power-on
+   * default and the right-hand speakers stay silent.
+   */
+  fsm_list_func_arg(fsm_dev, fsm_swap_channel, cfg->next_angle);
   cfg->cur_angle = cfg->next_angle;
   cfg->cur_scene = cfg->next_scene;
   cfg->speaker_on = true;
