@@ -967,6 +967,9 @@ int fsm_swap_channel(fsm_dev_t *fsm_dev, int next_angle) {
   if (!fsm_dev) {
     return -EINVAL;
   }
+  if (g_fsm_config.dev_count > 2) {
+    return 0;
+  }
   switch (next_angle) {
   case 90:
     left_chn = (FSM_POS_LBTM | FSM_POS_RBTM);
