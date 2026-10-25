@@ -3797,7 +3797,14 @@ int update_pen_status(bool enforce_send_cmd) {
 	NVT_LOG("This is factory mode, set pen_bluetooth_connect as 1");
 #endif // CONFIG_FACTORY_BUILD
 	enable_stylus_in_gamemode = ts->game_in_whitelist ? 1 : ts->gamemode_enable ? 0 : 1;
-	enable = (ts->pen_bluetooth_connect) && (!(ts->pen_charge_connect) && enable_stylus_in_gamemode);
+	/*
+	 * Do not gate the stylus on pen_charge_connect: on this board the
+	 * charger's PEN_HALL values report a docked/charging pen (e.g. HALL3=0,
+	 * HALL4=1) while the pen is being used, which left the stylus disabled
+	 * for the whole session. Keep the pen enabled whenever its Bluetooth
+	 * link is up.
+	 */
+	enable = (ts->pen_bluetooth_connect) && enable_stylus_in_gamemode;
 	if(enable_last_time == enable) {
 		if(!enforce_send_cmd) {
 			goto nvt_set_pen_enable_out;
