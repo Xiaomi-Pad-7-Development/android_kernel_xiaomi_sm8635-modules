@@ -1741,6 +1741,12 @@ static int msm_snd_card_late_probe(struct snd_soc_card *card)
 		return -ENOMEM;
 	wcd_mbhc_cfg.calibration = mbhc_calibration;
 
+	/* Tablets without a 3.5mm jack still run WCD MBHC, which can
+	 * false-detect a wired headset; let the board disable it. */
+	if (of_property_read_bool(card->dev->of_node, "qcom,no-mbhc-jack"))
+		wcd_mbhc_cfg.detect_extn_cable = false;
+
+
 #if defined(CONFIG_TARGET_PRODUCT_CHENFENG) || defined(CONFIG_TARGET_PRODUCT_PERIDOT) || defined(CONFIG_TARGET_PRODUCT_AMETHYST)
 #elif IS_ENABLED(CONFIG_QCOM_WCD_USBSS_I2C)
 	if (of_find_property(card->dev->of_node,
