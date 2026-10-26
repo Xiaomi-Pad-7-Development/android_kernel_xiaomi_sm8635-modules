@@ -3082,8 +3082,13 @@ static void nvt_ts_prase_data_func(void *data)
  * every one of those frames, so the header offsets are right and the frame
  * really is 1215. This whitelist is a sanity check only; the copy below
  * uses ts->frame_len. Accept uke's value.
+ *
+ * Similarly, uke's CSOT firmware reports a stylus frame length of 0x0509
+ * (1289) instead of 0x050D (1293) - exactly 4 bytes shorter, matching the
+ * finger frame offset.
  */
 #define XM_HTC_DEFAULT_FINGER_PACKET_LEN_UKE 0x04BF
+#define XM_HTC_DEFAULT_STYLUS_PACKET_LEN_UKE 0x0509
 
 static irqreturn_t nvt_ts_work_func_irq_handler(int irq, void *data)
 {
@@ -3235,7 +3240,7 @@ static irqreturn_t nvt_ts_work_func(int irq, void *data)
 	crc_len = *((int32_t *)(frame_data_packet + 8));
 	crc_r = *((uint16_t *)(frame_data_packet + 12));
 	crc_r_len = *((int32_t *)(frame_data_packet + 16));
-	if ((crc_len != XM_HTC_DEFAULT_FINGER_PACKET_LEN && crc_len != XM_HTC_DEFAULT_FINGER_PACKET_LEN_UKE && crc_len != XM_HTC_DEFAULT_STYLUS_PACKET_LEN) || (crc_r != ((uint16_t)(~crc))) || (crc_r_len != ~crc_len)) {
+	if ((crc_len != XM_HTC_DEFAULT_FINGER_PACKET_LEN && crc_len != XM_HTC_DEFAULT_FINGER_PACKET_LEN_UKE && crc_len != XM_HTC_DEFAULT_STYLUS_PACKET_LEN && crc_len != XM_HTC_DEFAULT_STYLUS_PACKET_LEN_UKE) || (crc_r != ((uint16_t)(~crc))) || (crc_r_len != ~crc_len)) {
 		printk("nvt-ts:  packet  wrong(crc=0x%04X, crc_len=0x%08X, crc_r=0x%04X, crc_r_len=0x%08X)!\n",
 				crc, crc_len, crc_r, crc_r_len);
 		goto XFER_ERROR;
