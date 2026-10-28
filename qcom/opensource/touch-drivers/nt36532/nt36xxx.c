@@ -72,9 +72,7 @@ extern ssize_t mi_dsi_panel_lockdown_info_read(unsigned char *plockdowninfo);
 static int32_t nvt_ts_suspend(struct device *dev);
 static int32_t nvt_ts_resume(struct device *dev);
 static int32_t nvt_ts_resume_suspend(bool is_resume, u8 gesture_type);
-/* uke/CP2A: declared for the piano-w-oss display stack only; see the
- * guarded call in nvt_set_gesture_mode(). Not defined in this tree. */
-/* extern void dsi_panel_gesture_enable(bool on); */
+extern void dsi_panel_gesture_enable(bool on);
 
 // for ic_self_test
 #define NORMAL_MODE 0x00
@@ -3650,18 +3648,7 @@ static void nvt_set_gesture_mode(int value)
 	} else if (ts->ic_state >= NVT_IC_RESUME_OUT) {
 		NVT_LOG("Screen on, set gesture flag(%02x), ic state is %d", value, ts->ic_state);
 		ts->gesture_command = value;
-		/* uke/CP2A: dsi_panel_gesture_enable() exists only on the
-		 * piano-w-oss display driver, where it feeds tddi_gesture_flag
-		 * and eight TDDI-aware power-off sites in msm/dsi/dsi_panel.c.
-		 * Neither this tree's display driver nor Xiaomi's own uke-v-oss
-		 * one has that layer (0 references on both), so the symbol
-		 * cannot be linked and the call would be a no-op anyway.
-		 * Guarded rather than stubbed: no fabricated symbol is
-		 * exported and the display stack is untouched. Touch reporting
-		 * is unaffected; only double-tap gesture wake is, and that is
-		 * unsupported on uke regardless.
-		 *   dsi_panel_gesture_enable(!!ts->gesture_command);
-		 */
+		dsi_panel_gesture_enable(!!ts->gesture_command);
 	}
 }
 
@@ -5302,6 +5289,7 @@ static int32_t nvt_ts_probe(struct spi_device *client)
 	 * The touch HAL can still change the gesture set at runtime. */
 	if (!ts->gesture_command)
 		ts->gesture_command = 0x01;
+	dsi_panel_gesture_enable(!!ts->gesture_command);
 
 	nvt_irq_enable(true);
 
@@ -5607,6 +5595,7 @@ static int32_t nvt_ts_suspend(struct device *dev)
 
 	if (!ts->gesture_command)
 		ts->gesture_command = 0x01;
+	dsi_panel_gesture_enable(!!ts->gesture_command);
 	NVT_LOG("start, gesture_command:0x%02x\n", ts->gesture_command);
 	pm_stay_awake(dev);
 	ts->ic_state = NVT_IC_SUSPEND_IN;

@@ -438,4 +438,7 @@ int mi_dsi_panel_parse_timing_fps_params(struct dsi_panel *panel,
                                          struct dsi_display_mode *mode,
                                          struct dsi_parser_utils *utils);
 
+void dsi_panel_gesture_enable(bool enable);
+void dsi_panel_doubleclick_enable(bool on);
+
 #endif /* _MI_DSI_PANEL_H_ */

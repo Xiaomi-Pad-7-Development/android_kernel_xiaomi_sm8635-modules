@@ -6498,7 +6498,16 @@ ssize_t mi_dsi_panel_lockdown_info_read(unsigned char *plockdowninfo) {
 }
 EXPORT_SYMBOL(mi_dsi_panel_lockdown_info_read);
 
+void dsi_panel_gesture_enable(bool enable) {
+  if (!g_panel) {
+    DISP_ERROR("invalid params\n");
+    return;
+  }
+  g_panel->mi_cfg.tddi_doubleclick_flag = enable;
+}
+EXPORT_SYMBOL(dsi_panel_gesture_enable);
+
 void dsi_panel_doubleclick_enable(bool on) {
-  g_panel->mi_cfg.tddi_doubleclick_flag = on;
+  dsi_panel_gesture_enable(on);
 }
 EXPORT_SYMBOL(dsi_panel_doubleclick_enable);
