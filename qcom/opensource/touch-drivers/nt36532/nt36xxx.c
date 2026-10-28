@@ -3603,12 +3603,12 @@ static void nvt_init_touchmode_data(void)
 	touch_mode[DATA_MODE_22][SET_CUR_VALUE] = 0;
 	touch_mode[DATA_MODE_22][GET_CUR_VALUE] = 0;
 
-	/* DATA_MODE_24 */
+	/* DATA_MODE_24: allow the pen shorthand (pen gesture) reports */
 	touch_mode[DATA_MODE_24][GET_MAX_VALUE] = 1;
 	touch_mode[DATA_MODE_24][GET_MIN_VALUE] = 0;
-	touch_mode[DATA_MODE_24][GET_DEF_VALUE] = 0;
-	touch_mode[DATA_MODE_24][SET_CUR_VALUE] = 0;
-	touch_mode[DATA_MODE_24][GET_CUR_VALUE] = 0;
+	touch_mode[DATA_MODE_24][GET_DEF_VALUE] = 1;
+	touch_mode[DATA_MODE_24][SET_CUR_VALUE] = 1;
+	touch_mode[DATA_MODE_24][GET_CUR_VALUE] = 1;
 
 	/* DATA_MODE_33 */
 	touch_mode[DATA_MODE_33][GET_MAX_VALUE] = 1;
@@ -5605,6 +5605,8 @@ static int32_t nvt_ts_suspend(struct device *dev)
 		return 0;
 	}
 
+	if (!ts->gesture_command)
+		ts->gesture_command = 0x01;
 	NVT_LOG("start, gesture_command:0x%02x\n", ts->gesture_command);
 	pm_stay_awake(dev);
 	ts->ic_state = NVT_IC_SUSPEND_IN;
