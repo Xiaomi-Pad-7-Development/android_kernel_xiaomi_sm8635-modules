@@ -5298,6 +5298,11 @@ static int32_t nvt_ts_probe(struct spi_device *client)
 
 	bTouchIsAwake = 1;
 
+	/* Enable double-tap gesture wake by default (GESTURE_DOUBLETAP_EVENT).
+	 * The touch HAL can still change the gesture set at runtime. */
+	if (!ts->gesture_command)
+		ts->gesture_command = 0x01;
+
 	nvt_irq_enable(true);
 
 	ret = mi_dsi_panel_lockdown_info_read(ts->lockdown_info);
