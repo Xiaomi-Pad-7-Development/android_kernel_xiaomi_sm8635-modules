@@ -372,6 +372,7 @@ struct nvt_ts_data {
 	int gesture_command;
 	int gesture_command_delayed;
 	bool dev_pm_suspend;
+	bool irq_wake_enabled;
 	struct completion dev_pm_suspend_completion;
 	/* gesture mode setup end */
 	/* resume use work queue setup */

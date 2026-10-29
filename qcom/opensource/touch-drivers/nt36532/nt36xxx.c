@@ -4948,6 +4948,7 @@ static int32_t nvt_ts_probe(struct spi_device *client)
 	ts->input_dev->name = NVT_TS_NAME;
 	ts->input_dev->phys = ts->phys;
 	ts->input_dev->id.bustype = BUS_SPI;
+	ts->input_dev->dev.parent = &client->dev;
 
 	//---register input device---
 	ret = input_register_device(ts->input_dev);
@@ -4997,6 +4998,7 @@ static int32_t nvt_ts_probe(struct spi_device *client)
 		ts->pen_input_dev_m80p->name = NVT_M80P_PEN_NAME;
 		ts->pen_input_dev_m80p->phys = ts->pen_phys;
 		ts->pen_input_dev_m80p->id.bustype = BUS_SPI;
+		ts->pen_input_dev_m80p->dev.parent = &client->dev;
 		//---improve evdev buffer size to 1024---
 		ts->pen_input_dev_m80p->hint_events_per_packet = 128;
 
@@ -5039,6 +5041,7 @@ static int32_t nvt_ts_probe(struct spi_device *client)
 		ts->pen_input_dev_p81c->name = NVT_P81C_PEN_NAME;
 		ts->pen_input_dev_p81c->phys = ts->pen_p81c_phys;
 		ts->pen_input_dev_p81c->id.bustype = BUS_SPI;
+		ts->pen_input_dev_p81c->dev.parent = &client->dev;
 		//---improve evdev buffer size to 1024---
 		ts->pen_input_dev_p81c->hint_events_per_packet = 128;
 
@@ -5601,8 +5604,14 @@ static int32_t nvt_ts_suspend(struct device *dev)
 	ts->ic_state = NVT_IC_SUSPEND_IN;
 
 	/* gesture mode setup */
-	if (!ts->gesture_command)
-			nvt_irq_enable(false);
+	if (!ts->gesture_command) {
+		nvt_irq_enable(false);
+	} else {
+		if (!ts->irq_wake_enabled) {
+			enable_irq_wake(ts->client->irq);
+			ts->irq_wake_enabled = true;
+		}
+	}
 	/* gesture mode setup end */
 
 #if NVT_TOUCH_ESD_PROTECT
@@ -5672,6 +5681,10 @@ static int32_t nvt_ts_resume(struct device *dev)
 	}
 
 	NVT_LOG("start\n");
+	if (ts->irq_wake_enabled) {
+		disable_irq_wake(ts->client->irq);
+		ts->irq_wake_enabled = false;
+	}
 	if (ts->dev_pm_suspend) {
 		pm_stay_awake(dev);
 		pm_wake_status = true;
@@ -5853,7 +5866,10 @@ static int nvt_pm_suspend(struct device *dev)
 
 	if (device_may_wakeup(dev) && ts->gesture_command) {
 		NVT_LOG("enable touch irq wake\n");
-		enable_irq_wake(ts->client->irq);
+		if (!ts->irq_wake_enabled) {
+			enable_irq_wake(ts->client->irq);
+			ts->irq_wake_enabled = true;
+		}
 	}
 	ts->dev_pm_suspend = true;
 	reinit_completion(&ts->dev_pm_suspend_completion);
@@ -5869,7 +5885,10 @@ static int nvt_pm_resume(struct device *dev)
 
 	if (device_may_wakeup(dev) && ts->gesture_command) {
 		NVT_LOG("disable touch irq wake\n");
-		disable_irq_wake(ts->client->irq);
+		if (ts->irq_wake_enabled) {
+			disable_irq_wake(ts->client->irq);
+			ts->irq_wake_enabled = false;
+		}
 	}
 	ts->dev_pm_suspend = false;
 	complete(&ts->dev_pm_suspend_completion);
