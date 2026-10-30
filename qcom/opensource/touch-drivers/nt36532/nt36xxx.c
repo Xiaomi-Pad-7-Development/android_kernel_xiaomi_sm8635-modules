@@ -3660,10 +3660,16 @@ static int nvt_enable_gesture_mode(int value)
 	uint8_t singletap_enable = 0;
 	uint8_t buf[4] = {0};
 
-	// set gesture enable/disable
-	nvt_xm_htc_set_gesture_switch(ts->gesture_command & 0xFFFF);
-
 	if (value) {
+		doubletap_enable = !!(ts->gesture_command & 0x01);
+		pen_shorthand_enable = !!(ts->gesture_command & 0x02);
+		singletap_enable = !!(ts->gesture_command & 0x04);
+
+		// set gesture enable/disable
+		nvt_xm_htc_set_gesture_switch(ts->gesture_command & 0xFFFF);
+		nvt_xm_htc_set_gesture_dbclk(doubletap_enable);
+		nvt_xm_htc_set_click_gesture_enable(singletap_enable);
+
 		msleep(35);
 		/*---write command to enter "wakeup gesture mode"---*/
 		buf[0] = EVENT_MAP_HOST_CMD;
@@ -3672,12 +3678,13 @@ static int nvt_enable_gesture_mode(int value)
 		if (ret < 0) {
 			NVT_ERR("set cmd failed!\n");
 		}
-		doubletap_enable = ts->gesture_command & 0x01;
-		pen_shorthand_enable = ts->gesture_command & 0x02;
-		singletap_enable = ts->gesture_command & 0x04;
 		NVT_LOG("Gesture mode on, %s doubletap gesture, %s pen shorthand gesture, %s singletap gesture\n",
 				doubletap_enable ? "Enable" : "Disable", pen_shorthand_enable ? "Enable" : "Disable", singletap_enable ? "Enable" : "Disable");
 	} else {
+		nvt_xm_htc_set_gesture_switch(0);
+		nvt_xm_htc_set_gesture_dbclk(0);
+		nvt_xm_htc_set_click_gesture_enable(0);
+
 		/*---write command to enter "deep sleep mode"---*/
 		buf[0] = EVENT_MAP_HOST_CMD;
 		buf[1] = 0x11;
