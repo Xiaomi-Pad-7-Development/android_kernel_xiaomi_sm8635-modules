@@ -28,6 +28,7 @@
 #ifdef MI_DISPLAY_MODIFY
 #include <drm/mi_disp.h>
 #include "mi_disp_feature.h"
+#include "mi_backlight_ktz8866.h"
 #include "mi_disp_parser.h"
 #include "mi_disp_print.h"
 #include "mi_panel_id.h"
@@ -923,6 +924,12 @@ int dsi_panel_set_backlight(struct dsi_panel *panel, u32 bl_lvl)
 		rc = dsi_panel_update_backlight(panel, bl_lvl);
 		break;
 	case DSI_BACKLIGHT_EXTERNAL:
+		if (mi_get_panel_id(panel->mi_cfg.mi_panel_id) == O82_PANEL_PB ||
+		    mi_get_panel_id(panel->mi_cfg.mi_panel_id) == O81_PANEL_PB ||
+		    mi_get_panel_id(panel->mi_cfg.mi_panel_id) == O82_PANEL_PA ||
+		    mi_get_panel_id(panel->mi_cfg.mi_panel_id) == O81_PANEL_PA) {
+			rc = ktz8866_backlight_update_status(bl_lvl);
+		}
 		break;
 	case DSI_BACKLIGHT_PWM:
 		rc = dsi_panel_update_pwm_backlight(panel, bl_lvl);

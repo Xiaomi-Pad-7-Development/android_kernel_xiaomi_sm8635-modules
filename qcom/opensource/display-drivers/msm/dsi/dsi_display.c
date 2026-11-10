@@ -34,6 +34,7 @@
 #include "mi_disp_print.h"
 #include "mi_disp_lhbm.h"
 #include "mi_panel_id.h"
+#include "mi_backlight_ktz8866.h"
 #endif
 
 #define to_dsi_display(x) container_of(x, struct dsi_display, host)
@@ -9674,6 +9675,7 @@ void dsi_display_report_dead(struct dsi_display *display)
 void __init dsi_display_register(void)
 {
 #ifdef MI_DISPLAY_MODIFY
+	mi_backlight_ktz8866_init();
 	mi_disp_feature_init();
 #endif
 	dsi_phy_drv_register();
