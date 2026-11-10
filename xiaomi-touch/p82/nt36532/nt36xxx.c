@@ -2240,7 +2240,7 @@ static int32_t nvt_parse_dt(struct device *dev)
 	gpio_direction_input(ts->lcd_id_gpio);
 	/* read id pin value, 0 is CSOT, 1 is TM */
 	ts->lcd_id_value = gpio_get_value(ts->lcd_id_gpio);
-	NVT_LOG("lcd_id_value = %d, this panel is %s", ts->lcd_id_value, ts->lcd_id_value ? "TM" : "CSOT");
+	NVT_LOG("lcd_id_value = %d, this panel is %s", ts->lcd_id_value, ts->lcd_id_value ? "CSOT" : "TM");
 
 	ret = of_property_read_u32(np, "novatek,spi-rd-fast-addr", &SPI_RD_FAST_ADDR);
 	if (ret) {
@@ -5195,7 +5195,7 @@ static int32_t nvt_ts_probe(struct spi_device *client)
 
 	//nvt hardware_param
 	memset(hardware_param.config_file_name, 0, 64);
-	if (!ts->lcd_id_value) {
+	if (ts->lcd_id_value) {
 		memcpy(hardware_param.config_file_name, BOOT_UPDATE_CONFIG_NAME_CSOT, strlen(BOOT_UPDATE_CONFIG_NAME_CSOT));
 	} else {
 		memcpy(hardware_param.config_file_name, BOOT_UPDATE_CONFIG_NAME_BOE, strlen(BOOT_UPDATE_CONFIG_NAME_BOE));
