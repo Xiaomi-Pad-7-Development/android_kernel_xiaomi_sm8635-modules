@@ -321,6 +321,81 @@ static struct input_dev *report_stylus_event(s8 touch_id, hal_report_piont_t *re
 	return stylus_input_dev;
 }
 
+/*
+ * The uke touch HAL does not use the report point mmap. It writes its points
+ * to the device as 28 byte records, which the stock module reports on the
+ * input device of the touch IC driver.
+ */
+typedef struct legacy_report_point {
+	s32 touch_id;
+	s32 slot;
+	s32 state;
+	s32 x;
+	s32 y;
+	s32 reserved[2];
+} legacy_report_point_t;
+
+static struct input_dev *legacy_input_devs[MAX_TOUCH_PANEL_COUNT];
+static DEFINE_MUTEX(legacy_report_mutex);
+
+void set_xiaomi_legacy_input_dev(s8 touch_id, struct input_dev *input_dev)
+{
+	if (IS_TOUCH_ID_INVALID(touch_id)) {
+		LOG_ERROR("touch id %d is invalid", touch_id);
+		return;
+	}
+	mutex_lock(&legacy_report_mutex);
+	legacy_input_devs[touch_id] = input_dev;
+	mutex_unlock(&legacy_report_mutex);
+}
+EXPORT_SYMBOL_GPL(set_xiaomi_legacy_input_dev);
+
+int report_legacy_touch_event(const void *buf, int event_count)
+{
+	const legacy_report_point_t *point = buf;
+	struct input_dev *input_dev = NULL;
+	int down_count = 0;
+	int index = 0;
+
+	if (event_count <= 0)
+		return -1;
+	if (IS_TOUCH_ID_INVALID(point[0].touch_id)) {
+		LOG_ERROR("touch id %d is invalid", point[0].touch_id);
+		return -1;
+	}
+
+	mutex_lock(&legacy_report_mutex);
+	input_dev = legacy_input_devs[point[0].touch_id];
+	if (input_dev == NULL) {
+		mutex_unlock(&legacy_report_mutex);
+		return -1;
+	}
+
+	for (index = 0; index < event_count; index++) {
+		if (point[index].slot < 0 || point[index].slot >= MAX_TOUCH_ID)
+			continue;
+		if (point[index].state) {
+			input_report_key(input_dev, BTN_TOUCH, 1);
+			input_report_key(input_dev, BTN_TOOL_FINGER, 1);
+			input_mt_slot(input_dev, point[index].slot);
+			input_mt_report_slot_state(input_dev, MT_TOOL_FINGER, 1);
+			input_report_abs(input_dev, ABS_MT_POSITION_X, point[index].x);
+			input_report_abs(input_dev, ABS_MT_POSITION_Y, point[index].y);
+			down_count++;
+		} else {
+			input_mt_slot(input_dev, point[index].slot);
+			input_mt_report_slot_state(input_dev, MT_TOOL_FINGER, 0);
+		}
+	}
+	if (down_count == 0) {
+		input_report_key(input_dev, BTN_TOUCH, 0);
+		input_report_key(input_dev, BTN_TOOL_FINGER, 0);
+	}
+	input_sync(input_dev);
+	mutex_unlock(&legacy_report_mutex);
+	return 0;
+}
+
 int report_touch_event(s8 touch_id, u8 event_count)
 {
 	struct input_dev *input_dev = NULL;

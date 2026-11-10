@@ -4932,6 +4932,7 @@ static int32_t nvt_ts_probe(struct spi_device *client)
 		NVT_ERR("register input device (%s) failed. ret=%d\n", ts->input_dev->name, ret);
 		goto err_input_register_device_failed;
 	}
+	set_xiaomi_legacy_input_dev(TOUCH_ID, ts->input_dev);
 
 	/* MIPP Start */
 #if !TOUCH_THP_SUPPORT
@@ -5365,6 +5366,7 @@ err_pen_input_dev_alloc_failed:
 #if !TOUCH_THP_SUPPORT
 err_pen_register_device_failed:
 #endif
+	set_xiaomi_legacy_input_dev(TOUCH_ID, NULL);
 	input_unregister_device(ts->input_dev);
 	ts->input_dev = NULL;
 err_input_register_device_failed:
@@ -5484,6 +5486,7 @@ static void nvt_ts_remove(struct spi_device *client)
 	}
 
 	if (ts->input_dev) {
+		set_xiaomi_legacy_input_dev(TOUCH_ID, NULL);
 		input_unregister_device(ts->input_dev);
 		ts->input_dev = NULL;
 	}

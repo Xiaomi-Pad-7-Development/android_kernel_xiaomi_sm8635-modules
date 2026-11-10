@@ -39,6 +39,7 @@
 #define COMMON_DATA_BUF_SIZE    10
 #define MAX_TOUCH_PANEL_COUNT   2
 #define MAX_TOUCH_ID 10
+#define LEGACY_REPORT_POINT_SIZE 28
 #define HAL_VERSION_LENGTH  128
 
 #define GESTURE_LONGPRESS_EVENT 0x01
@@ -398,6 +399,8 @@ void unregister_xiaomi_input_dev(s8 touch_id);
 struct input_dev *register_xiaomi_stylus_input_dev(s8 touch_id, int max_x, int max_y, ic_product_code code);
 void unregister_xiaomi_stylus_input_dev(s8 touch_id);
 int report_touch_event(s8 touch_id, u8 event_count);
+void set_xiaomi_legacy_input_dev(s8 touch_id, struct input_dev *input_dev);
+int report_legacy_touch_event(const void *buf, int event_count);
 dma_addr_t get_report_point_info_phy_addr(void);
 void enable_temperature_detection_func(bool is_resume);
 int get_bms_temp_common(void);

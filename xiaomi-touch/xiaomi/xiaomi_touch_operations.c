@@ -127,6 +127,8 @@ static ssize_t xiaomi_touch_dev_write(struct file *file, const char __user *buf,
 		add_common_data_to_buf(0, SET_CUR_VALUE, DATA_MODE_143, 1, &value);
 		return count;
 	}
+	if (count && (count % LEGACY_REPORT_POINT_SIZE) == 0)
+		report_legacy_touch_event(temp_buf, count / LEGACY_REPORT_POINT_SIZE);
 
 	return count;
 }
