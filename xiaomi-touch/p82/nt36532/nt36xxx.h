@@ -151,7 +151,7 @@ extern const uint16_t touch_key_array[TOUCH_KEY_NUM];
 #endif
 #define TOUCH_FORCE_NUM 1
 //thp start 6.8
-#define SUPER_RESOLUTION_FACOTR 100
+#define SUPER_RESOLUTION_FACOTR 10
 //thp end 6.8
 
 //---for Pen---
