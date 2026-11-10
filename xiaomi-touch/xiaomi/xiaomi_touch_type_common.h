@@ -3,7 +3,7 @@
 
 #include <linux/types.h>
 
-#define CMD_DATA_BUF_SIZE	256
+#define CMD_DATA_BUF_SIZE	128
 #define FOD_VALUE_LEN 5
 /*
 typedef uint32_t u32;
